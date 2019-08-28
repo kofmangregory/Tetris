@@ -281,8 +281,8 @@ public class Tetris {
 		this.rotationIndex = Math.random(activePieceConfigs.size());
 		this.activeConfig = this.configList.get(activeConfigIndex);
 
-		this.x = this.grid.size() / 2 - this.activeConfig.configGrid.length / 2;
-		this.y = this.grid.get(0).size - this.activeConfig.configGrid[0].length;
+		this.x = this.grid.get(0).size() / 2 - this.activeConfig.configGrid.length / 2;
+		this.y = this.grid.size() - this.activeConfig.configGrid[0].length;
 
 		// Check validity. End the game if a piece cannot be added.
 		for (int i = 0; i < activeConfig.configGrid.length; i++) {

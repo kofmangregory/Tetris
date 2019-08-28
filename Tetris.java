@@ -450,6 +450,7 @@ public class Tetris {
 			}
 		}
 		else {
+			clearFinishedRows();
 			setActivePieceAndConfig();
 		}
 	}

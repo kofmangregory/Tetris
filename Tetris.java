@@ -255,7 +255,7 @@ public class Tetris {
 
 	// Remove finished rows and add empty row to top. 
 	private void clearFinishedRows() {
-		int numDeleted = 0;
+		Set<Integer> toDelete = new HashSet<Integer>();
 		for (int i = 0; i < this.grid.size(); i++) {
 			List<Boolean> row = this.grid.get(i);
 			boolean clearRow = true;
@@ -263,12 +263,13 @@ public class Tetris {
 				if (row.get(j)) clearRow = false;
 			}
 			if (clearRow) {
-				this.grid.remove(i);
-				numDeleted++;
+				toDelete.add(i);
 			}
 		}
+
 		boolean falseTemplate = new boolean[this.grid.get(0).size()];
-		for (int i = 0; i < numDeleted; i++) {
+		for (Integer i : toDelete) {
+			this.grid.remove(i);
 			this.grid.add(new ArrayList<Boolean>(falseTemplate));
 		}
 	}

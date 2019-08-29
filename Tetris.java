@@ -78,7 +78,7 @@ public class Tetris {
 		this.blockTypeMap.put(6, BlockType.T);
 	}
 
-	private void intializeGrid(int numRows, int numCols) {
+	private void initializeGrid(int numRows, int numCols) {
 		this.grid = new ArrayList<List<Boolean>>();
 
 		boolean falseTemplate = new boolean[numCols];
@@ -110,7 +110,7 @@ public class Tetris {
 		this.configList.add(iConfig);
 
 		// L
-		boolean[][] l1 = new boolean[e][3];
+		boolean[][] l1 = new boolean[3f][3];
 		l1[0][0] = true;
 		l1[0][1] = true;
 		l1[0][2] = true;
@@ -267,7 +267,7 @@ public class Tetris {
 			}
 		}
 
-		boolean falseTemplate = new boolean[this.grid.get(0).size()];
+		boolean[] falseTemplate = new boolean[this.grid.get(0).size()];
 		for (Integer i : toDelete) {
 			this.grid.remove(i);
 			this.grid.add(new ArrayList<Boolean>(falseTemplate));
@@ -298,7 +298,7 @@ public class Tetris {
 		this.blockIndex = blockTypeIndex;
 		List<BlockConfig> activePieceConfigs = this.configList.get(this.activePiece);
 		this.rotationIndex = Math.random(activePieceConfigs.size());
-		this.activeConfig = this.configList.get(activeConfigIndex);
+		this.activeConfig = this.configList.get(rotationIndex);
 
 		this.x = this.grid.get(0).size() / 2 - this.activeConfig.configGrid.length / 2;
 		this.y = this.grid.size() - this.activeConfig.configGrid[0].length;
@@ -313,7 +313,7 @@ public class Tetris {
 	private void tempClear() {
 		for (int i = 0; i < this.activeConfig.configGrid.length; i++) {
 			for (int j = 0; j < this.activeConfig.configGrid[i].length; j++) {
-				if (this.activeConfig[i][j]) {
+				if (this.activeConfig.configGrid[i][j]) {
 					this.grid.get(this.y + j).set(this.x + i, false);
 				}
 			}
@@ -324,7 +324,7 @@ public class Tetris {
 	private void tempUnclear() {
 		for (int i = 0; i < this.activeConfig.configGrid.length; i++) {
 			for (int j = 0; j < this.activeConfig.configGrid[i].length; j++) {
-				if (this.activeConfig[i][j]) {
+				if (this.activeConfig.configGrid[i][j]) {
 					this.grid.get(this.y + j).set(this.x + i, true);
 				}
 			}
@@ -382,7 +382,7 @@ public class Tetris {
 		}
 	}
 
-	private void canMoveDown() {
+	private boolean canMoveDown() {
 		int nextY = this.y - 1;
 
 		tempClear();
@@ -417,5 +417,4 @@ public class Tetris {
 			setActivePieceAndConfig();
 		}
 	}
-
 }

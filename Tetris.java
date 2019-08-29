@@ -274,6 +274,24 @@ public class Tetris {
 		}
 	}
 
+	private boolean checkValidityOfConfigPlacement(BlockConfig config, int x, int y) {
+		for (int i = 0; i < config.configGrid.length; i++) {
+			for (int j = 0; j < config.configGrid[i].length; j++) {
+				if (config.configGrid[i][j]) {
+					if (x + i >=0 && x + i < this.grid.get(0).size() &&
+						y + j >= 0 && y + j < this.grid.size() && !this.grid.get(y+j).get(x+i)) {
+						continue;
+					} 
+					else {
+						return false;
+					}
+				}
+			}
+		}
+
+		return true;
+	}
+
 	private void setActivePieceAndConfig() {
 		int blockTypeIndex = Math.random(this.configList.size());
 		this.activePiece = this.blockTypeMap.get(blockTypeIndex);
@@ -286,25 +304,9 @@ public class Tetris {
 		this.y = this.grid.size() - this.activeConfig.configGrid[0].length;
 
 		// Check validity. End the game if a piece cannot be added.
-		for (int i = 0; i < activeConfig.configGrid.length; i++) {
-			for (int j = 0; j < activeConfig.configGrid[i].length; j++) {
-				if (activeConfig[i][j]) {
-					if (this.grid.get(this.x + i).get(this.y + j)) {
-						System.out.println("GAME OVER.");
-						return;
-					}
-				}
-			}
-		}
-
-		// Place new piece.
-		for (int i = 0; i < this.activeConfig.configGrid.length; i++) {
-			for (int j = 0; j < this.activeConfig.configGrid[i].length; j++) {
-				if (activeConfig[i][j]) {
-					this.grid.get(this.x + i).set(this.y + j, true);
-				}
-			}
-		}
+		boolean validPlacement = checkValidityOfConfigPlacement(this.activeConfig, this.x, this.y);
+		if (!validPlacement) System.out.println("GAME OVER");
+		else placePiece(this.activeConfig, this.x, this.y);
 	}
 
 	// Clear the active piece to check if it can be rotated or shifted.
@@ -336,23 +338,11 @@ public class Tetris {
 
 		tempClear();
 
-		for (int i = 0; i < rotation.configGrid.length; i++) {
-			for (int j = 0; j < rotation.configGrid[i].length; j++) {
-				if (rotation.configGrid[i][j]) {
-					if (this.x + i >=0 && this.x + i < this.grid.get(0).size() &&
-						this.y + j >= 0 && this.y + j < this.grid.size() && !this.grid.get(this.y+j).get(this.x+i)) {
-						continue;
-					} 
-					else {
-						tempUnclear();
-						return false;
-					}
-				}
-			}
-		}
+		boolean validRotation = checkValidityOfConfigPlacement(rotation, this.x, this.y);
 
 		tempUnclear();
-		return true;
+
+		return validRotation;
 	}
 
 	private void rotate(boolean right) {
@@ -364,13 +354,7 @@ public class Tetris {
 			this.rotationIndex = (incrementor + this.rotationIndex) % this.configList.get(this.blockIndex).size();
 			this.activeConfig = this.configList.get(this.blockIndex);
 
-			for (int i = 0; i < this.activeConfig.configGrid.length; i++) {
-				for (int j = 0; j < this.activeConfig.configGrid[i].length; j++) {
-					if (this.activeConfig[i][j]) {
-						this.grid.get(this.y + j).set(this.x + i, false);
-					}
-				}
-			}
+			placePiece(this.activeConfig, this.x, this.y);
 		}
 	}
 
@@ -380,22 +364,11 @@ public class Tetris {
 
 		tempClear();
 
-		for (int i = 0; i < this.activeConfig.configGrid.length; i++) {
-			for (int j = 0; j < this.activeConfig.configGrid[i].length; j++) {
-				if (this.activeConfig.configGrid[i][j]) { 
-					if (nextX + i >= 0 && nextX + i <this.grid.get(0).size() && this.y + j >=0 && this.y + j < this.grid.size() && !this.grid.get(this.y+j).get(nextX + i)) {
-						continue;
-					}
-					else {
-						tempUnclear();
-						return false;
-					}
-				}
-			}
-		}
+		boolean validShift = checkValidityOfConfigPlacement(this.activeConfig, nextX, this.y);
 
 		tempUnclear();
-		return true;
+
+		return validShift;
 	}
 
 	private void shift(boolean right) {
@@ -405,11 +378,7 @@ public class Tetris {
 			 int incrementor = right ? -1 : 1;
 			 this.x += incrementor;
 
-			 for (int i = 0; i < this.activeConfig.configGrid.length; i++) {
-			 	for (int j = 0; j < this.activeConfig.configGrid[i].length; j++) {
-			 		if (this.activeConfig.configGrid[i][j]) this.grid.get(this.y + j).set(this.x + i, true);
-			 	}
-			 }
+			 placePiece(this.activeConfig, this.x, this.y);
 		}
 	}
 
@@ -418,37 +387,30 @@ public class Tetris {
 
 		tempClear();
 
-		for (int i = 0; i < this.activeConfig.configGrid.length; i++) {
-			for (int j = 0; j < this.activeConfig.configGrid[i].length; j++) {
-				if (this.activeConfig.configGrid[i][j]) {
-					if (this.x + i >=0 && this.x + i < this.grid.get(0).size() && nextY + j >= 0 && nextY + j < this.grid.size() && !this.grid.get(nextY + j).get(this.x + i)) {
-						continue;
-					}
-					else {
-						tempUnclear();
-						return false;
-					}
+		boolean validMove = checkValidityOfConfigPlacement(this.activeConfig, this.x, nextY);
+
+		tempUnclear();
+
+		return validMove;
+	}
+
+	private void placePiece(BlockConfig config, int x, int y) {
+		for (int i = 0; i < config.configGrid.length; i++) {
+			for (int j = 0; j < config.configGrid[i].length; j++) {
+				if (config.configGrid[i][j]) {
+					this.grid.get(x + i).set(y + j, true);
 				}
 			}
 		}
-
-		tempUnclear();
-		return true;
 	}
 
 	private void moveDown() {
-		this.y = thi.y - 1;
+		this.y = this.y - 1;
 
 		tempClear();
 
 		if (canMoveDown()) {
-			for (int i = 0; i < this.activeConfig.configGrid.length; i++) {
-				for (int j = 0; j < this.activeConfig.configGrid[i].length; j++) {
-					if (this.activeConfigGrid[i][j]) {
-						this.grid.get(this.x + i).set(this.y + j, true);
-					}
-				}
-			}
+			placePiece(this.activeConfig, this.x, this.y);
 		}
 		else {
 			clearFinishedRows();
